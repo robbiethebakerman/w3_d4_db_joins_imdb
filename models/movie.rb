@@ -1,3 +1,3 @@
 class Movie
-
+  
 end
