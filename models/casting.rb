@@ -1,3 +1,5 @@
+require_relative("../db/sql_runner.rb")
+
 class Casting
 
   attr_reader :id
@@ -11,39 +13,50 @@ class Casting
   end
 
   def save()
-    sql = ""
-    values = []
-    result = SqlRunner.run(sql, values)
+    sql = "INSERT INTO castings (movie_id, star_id, fee)
+      VALUES ($1, $2, $3)
+      RETURNING *;"
+    values = [@movie_id, @star_id, @fee]
+    results = SqlRunner.run(sql, values)
+    @id = results[0]['id'].to_i
   end
 
   def self.find()
-    sql = ""
-    values = []
-    results = SqlRunner.run(sql, values)
+    sql = "SELECT *
+      FROM castings
+      WHERE id = $1"
+    values = [id]
+    result = SqlRunner.run(sql, values)[0]
+    casting = Casting.new(result)
+    return casting
   end
 
   def update()
-    sql = ""
-    values = []
-    results = SqlRunner.run(sql, values)
+    sql = "UPDATE castings
+      SET (movie_id, star_id, fee) = ($1, $2, $3)
+      WHERE id = $4;"
+    values = [@movie_id, @star_id, @fee, @id]
+    SqlRunner.run(sql, values)
   end
 
   def delete()
-    sql = ""
-    values = []
-    results = SqlRunner.run(sql, values)
+    sql = "DELETE FROM castings
+      WHERE id = $1;"
+    values = [@id]
+    SqlRunner.run(sql, values)
   end
 
   def self.all()
-    sql = ""
-    values = []
-    results = SqlRunner.run(sql, values)
+    sql = "SELECT *
+      FROM castings;"
+    results = SqlRunner.run(sql)
+    castings = results.map { |result| Casting.new(result) }
+    return castings
   end
 
   def self.delete_all()
-    sql = ""
-    values = []
-    results = SqlRunner.run(sql, values)
+    sql = "DELETE FROM castings;"
+    SqlRunner.run(sql)
   end
 
 end

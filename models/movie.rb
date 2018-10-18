@@ -1,3 +1,6 @@
+require_relative("../db/sql_runner.rb")
+require_relative("star")
+
 class Movie
 
   attr_reader :id
@@ -46,14 +49,26 @@ class Movie
   def self.all()
     sql = "SELECT *
       FROM movies;"
-    results = SqlRunner.run(sql, values)
+    results = SqlRunner.run(sql)
     movies = results.map { |result| Movie.new(result) }
     return movies
   end
 
   def self.delete_all()
     sql = "DELETE FROM movies;"
-    SqlRunner.run(sql, values)
+    SqlRunner.run(sql)
+  end
+
+  def stars()
+    sql = "SELECT stars.*
+      FROM stars
+      INNER JOIN castings
+      ON stars.id = castings.star_id
+      WHERE movie_id = $1;"
+    values = [@id]
+    results = SqlRunner.run(sql, values)
+    stars = results.map { |result| Star.new(result) }
+    return stars
   end
 
 end
